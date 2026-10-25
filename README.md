@@ -87,7 +87,7 @@ Early-stage design prototype, for discussion within the project team. It is not 
 
 ## Author
 
-Susith Chandima Athukorala
+Dr. Susith Athukorala
 Rosemary Bryant AO Research Centre, Adelaide University
 
 © 2026. All rights reserved.
