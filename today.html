@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>PreHaRM – Today by shift</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main class="wrap">
+<header class="top">
+<div><div class="eyebrow">PreHaRM · Nurse Unit Manager view</div>
+<h1><span data-ward></span> · <span id="today-label"></span></h1></div>
+<div class="hright"><div class="who" data-who></div>
+<div class="updated"><span class="dot" aria-hidden="true"></span><div><strong data-updated></strong><small data-refresh></small></div></div>
+</div>
+</header>
+<nav class="views" aria-label="Dashboard views">
+<a href="today.html" aria-current="page">Today by shift</a>
+<a href="week.html">Week ahead</a>
+<span>Roster changes (separate view, to come)</span>
+</nav>
+<section class="card attention" aria-label="Needs attention">
+<span style="font-weight:600;font-size:15px">Needs attention today:</span>
+<span id="alerts" style="display:contents"></span>
+</section>
+<section class="card">
+<div class="card-head">
+<h2>Predicted harm risk by shift</h2>
+<div class="pills" id="harm-pills" role="group" aria-label="Show risk drivers for"><span class="lbl">Drivers for:</span></div>
+</div>
+<div class="scroll"><div class="shift-table">
+<div class="srow head"><span>Shift</span><span>Falls</span><span>Medication errors</span><span>Aggression</span><span>Staff on shift</span><span id="driver-head"></span></div>
+<div id="shift-rows"></div>
+</div></div>
+</section>
+<footer class="legend" data-legend></footer>
+</main>
+<script src="js/data.js"></script>
+<script src="js/today.js"></script>
+</body>
+</html>

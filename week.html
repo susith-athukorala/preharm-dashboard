@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>PreHaRM – Week ahead</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main class="wrap">
+<header class="top">
+<div><div class="eyebrow">PreHaRM · Nurse Unit Manager view</div>
+<h1><span data-ward></span> · <span id="week-label"></span></h1></div>
+<div class="hright"><div class="who" data-who></div>
+<div class="updated"><span class="dot" aria-hidden="true"></span><div><strong data-updated></strong><small data-refresh></small></div></div>
+</div>
+</header>
+<nav class="views" aria-label="Dashboard views">
+<a href="today.html">Today by shift</a>
+<a href="week.html" aria-current="page">Week ahead</a>
+<span>Roster changes (separate view, to come)</span>
+</nav>
+<section class="card">
+<div class="card-head">
+<h2 id="grid-title"></h2>
+<div class="pills" id="harm-pills" role="group" aria-label="Harm shown"><span class="lbl">Show:</span></div>
+</div>
+<div class="scroll"><div class="wgrid" id="wgrid"></div></div>
+<p class="note" id="grid-note"></p>
+</section>
+<div class="split">
+<section class="card chart">
+<h2 id="chart-title"></h2>
+<p class="note">Solid line: current prediction. Shaded range: how far it may move (+ / −). The range widens for later days because patient and staff details are more likely to change.</p>
+<svg id="forecast" viewBox="0 0 720 280" role="img" style="width:100%;height:auto;display:block"></svg>
+</section>
+<section class="card detail">
+<h2 id="detail-title"></h2>
+<div id="detail-boxes" style="display:flex;flex-direction:column;gap:12px"></div>
+<a class="btn-link" id="open-today" href="today.html">Open today's shift view</a>
+</section>
+</div>
+<footer class="legend" data-legend></footer>
+</main>
+<script src="js/data.js"></script>
+<script src="js/week.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>PreHaRM – Sign in</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main class="signin-wrap">
+<div class="signin">
+<span class="demo-flag">Prototype · demo sign-in</span>
+<div>
+<div class="eyebrow">PreHaRM</div>
+<h1 id="title">Harm risk dashboard</h1>
+</div>
+
+<div id="step1" style="display:flex;flex-direction:column;gap:18px">
+<p>Sign in with your hospital staff account. In the real system this would use the existing staff single sign-on, so there is no separate PreHaRM password.</p>
+<button type="button" class="btn-primary" id="sso">Continue with staff sign-in</button>
+<p class="fine">Demo only: no details are asked for, checked or stored. Sample data, not real patients or staff.</p>
+</div>
+
+<form id="step2" hidden style="display:flex;flex-direction:column;gap:18px">
+<p id="hello"></p>
+<fieldset class="wards" id="ward-list"><legend>Which ward do you want to view?</legend></fieldset>
+<button type="submit" class="btn-primary">Open dashboard</button>
+</form>
+</div>
+</main>
+<script src="js/data.js"></script>
+<script>
+(function () {
+  if (getSession()) { window.location.replace('today.html'); return; }
+  const list = document.getElementById('ward-list');
+  PREHARM.wards.forEach((w, i) => {
+    const id = 'ward-' + i;
+    list.appendChild(el('label', { for: id }, [
+      el('input', Object.assign({ type: 'radio', name: 'ward', id: id, value: w }, i === 0 ? { checked: 'checked' } : {})),
+      w
+    ]));
+  });
+  document.getElementById('sso').addEventListener('click', () => {
+    document.getElementById('step1').hidden = true;
+    document.getElementById('step2').hidden = false;
+    document.getElementById('hello').textContent = 'Signed in as ' + PREHARM.userName + '.';
+    document.getElementById('title').textContent = 'Choose a ward';
+  });
+  document.getElementById('step2').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const w = document.querySelector('input[name="ward"]:checked').value;
+    setSession({ name: PREHARM.userName, ward: w });
+    window.location.href = 'today.html';
+  });
+})();
+</script>
+</body>
+</html>
