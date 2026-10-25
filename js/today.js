@@ -24,7 +24,7 @@
       row.appendChild(el('div', {}, [el('span', { class: 'sname', text: sh.name }), el('span', { class: 'stime', text: sh.time })]));
 
       P.harms.forEach((h) => {
-        const v = P.week[h.id][s][0];
+        const v = P.riskAt(h.id, s, 0);
         const b = bandOf(v);
         if (v >= P.highMin) alerts.push(sh.name + ' · ' + h.label + ' ' + v + '%');
         row.appendChild(el('button', {

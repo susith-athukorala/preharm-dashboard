@@ -5,10 +5,10 @@ const PREHARM = {
   userName: '[NUM name]',
   // Wards a NUM can choose after signing in (demo values)
   wards: ['[Ward A]', '[Ward B]', '[Ward C]'],
-  todayLabel: 'Monday 26 October',
-  weekLabel: '26 Oct – 1 Nov',
-  lastUpdated: '06:30',
-  dataTo: '06:25',
+  // Dates, day names and the "last updated" time are worked out from the
+  // viewer's current date and time when the page opens (see setDates below).
+  updatedMinsAgo: 3, // "Last updated" = page opened minus this many minutes
+  dataLagMins: 5,    // "data to" = last updated minus this many minutes
   refresh: '[interval TBC]',
 
   // Band cut-offs (%) - placeholders to be agreed with NUMs
@@ -50,17 +50,50 @@ const PREHARM = {
       contrib: { all: [18, 10, 20, 20], falls: [16, 8, 18, 26], med: [20, 14, 22, 10], aggr: [14, 8, 22, 26] } }
   ],
 
-  // Week: predicted risk % [shift][day], Mon..Sun. Day 0 = today.
-  days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  daysLong: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-  dates: ['26 Oct', '27 Oct', '28 Oct', '29 Oct', '30 Oct', '31 Oct', '1 Nov'],
+  // Sample risk % by [shift][weekday], weekday order Mon..Sun.
+  // Each real date picks up the value for its weekday, so weekends stay higher.
   week: {
     falls: [[18, 20, 16, 15, 17, 22, 24], [24, 28, 22, 20, 23, 27, 29], [38, 42, 33, 30, 34, 40, 44]],
     med:   [[12, 14, 11, 10, 12, 15, 16], [16, 19, 15, 14, 15, 18, 20], [22, 26, 20, 18, 21, 25, 27]],
     aggr:  [[6, 7, 5, 5, 6, 9, 10], [14, 16, 12, 11, 13, 19, 21], [31, 35, 27, 25, 29, 42, 46]]
   },
   // Forecast range (+/- percentage points) widens with days from today. Illustrative only.
-  spread: function (d) { return 2 + d * 2.5; }
+  spread: function (d) { return 2 + d * 2.5; },
+  gridDays: 7,  // weekly grid: today + 6 days
+  chartDays: 8  // forecast chart: today to the same weekday next week
+};
+
+// Work out real dates from today
+(function setDates(P) {
+  const pad = (n) => String(n).padStart(2, '0');
+  const hhmm = (d) => pad(d.getHours()) + ':' + pad(d.getMinutes());
+  const now = new Date();
+  const upd = new Date(now.getTime() - P.updatedMinsAgo * 60000);
+  P.lastUpdated = hhmm(upd);
+  P.dataTo = hhmm(new Date(upd.getTime() - P.dataLagMins * 60000));
+
+  const short = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const long = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const mShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const mLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  P.wd = []; P.days = []; P.daysLong = []; P.dates = []; P.chartLabels = []; P.isWeekend = [];
+  for (let i = 0; i < P.chartDays; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+    const w = (d.getDay() + 6) % 7; // Monday = 0
+    P.wd.push(w);
+    P.days.push(short[w]);
+    P.daysLong.push(long[w]);
+    P.dates.push(d.getDate() + ' ' + mShort[d.getMonth()]);
+    P.chartLabels.push(short[w] + ' ' + d.getDate());
+    P.isWeekend.push(w >= 5);
+    if (i === 0) P.todayLabel = long[w] + ' ' + d.getDate() + ' ' + mLong[d.getMonth()];
+  }
+  P.weekLabel = P.dates[0] + ' – ' + P.dates[P.gridDays - 1];
+})(PREHARM);
+
+// Sample risk for harm h, shift s, i days from today
+PREHARM.riskAt = function (h, s, i) {
+  return this.week[h][s][this.wd[i]] + (i >= 7 ? 1 : 0);
 };
 
 function bandOf(v) {

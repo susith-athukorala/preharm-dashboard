@@ -5,9 +5,12 @@
   const harmName = (id) => P.harms.find((h) => h.id === id).label;
 
   const valOf = (h, s, d) => h === 'max'
-    ? Math.max(P.week.falls[s][d], P.week.med[s][d], P.week.aggr[s][d])
-    : P.week[h][s][d];
-  const topHarm = (s, d) => P.harms.reduce((best, h) => (P.week[h.id][s][d] > P.week[best][s][d] ? h.id : best), 'falls');
+    ? Math.max(P.riskAt('falls', s, d), P.riskAt('med', s, d), P.riskAt('aggr', s, d))
+    : P.riskAt(h, s, d);
+  const topHarm = (s, d) => P.harms.reduce((best, h) => (P.riskAt(h.id, s, d) > P.riskAt(best, s, d) ? h.id : best), 'falls');
+  const gridIdx = Array.from({ length: P.gridDays }, (_, i) => i);
+  const chartIdx = Array.from({ length: P.chartDays }, (_, i) => i);
+  const last = P.chartDays - 1;
 
   function render() {
     const harmLabel = tabs.find((t) => t.id === state.harm).label;
@@ -25,12 +28,12 @@
     const g = document.getElementById('wgrid');
     g.innerHTML = '';
     g.appendChild(el('span'));
-    P.days.forEach((n, i) => g.appendChild(el('div', { class: 'dayhead' + (i === 0 ? ' today' : i >= 5 ? ' weekend' : '') },
-      [el('strong', { text: i === 0 ? n + ' · Today' : n }), el('small', { text: P.dates[i] })])));
+    gridIdx.forEach((i) => g.appendChild(el('div', { class: 'dayhead' + (i === 0 ? ' today' : P.isWeekend[i] ? ' weekend' : '') },
+      [el('strong', { text: i === 0 ? P.days[i] + ' · Today' : P.days[i] }), el('small', { text: P.dates[i] })])));
     P.shifts.forEach((sh, s) => {
       g.appendChild(el('div', { style: 'display:flex;flex-direction:column;justify-content:center;padding:0 4px' },
         [el('span', { style: 'font-size:16px;font-weight:600', text: sh.name }), el('span', { class: 'stime', text: sh.time })]));
-      P.days.forEach((n, d) => {
+      gridIdx.forEach((d) => {
         const v = valOf(state.harm, s, d);
         const b = bandOf(v);
         g.appendChild(el('button', {
@@ -51,13 +54,13 @@
   function renderChart(harmLabel) {
     const s = state.shift;
     const W = 720, H = 280, pL = 44, pR = 40, pT = 14, pB = 36, yMax = 60;
-    const x = (i) => pL + i * (W - pL - pR) / 6;
+    const x = (i) => pL + i * (W - pL - pR) / last;
     const y = (v) => pT + (1 - Math.max(0, Math.min(yMax, v)) / yMax) * (H - pT - pB);
-    const vals = P.days.map((n, d) => valOf(state.harm, s, d));
+    const vals = chartIdx.map((d) => valOf(state.harm, s, d));
     const up = vals.map((v, d) => v + P.spread(d));
     const dn = vals.map((v, d) => Math.max(0, v - P.spread(d)));
     const path = (a) => a.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
-    const band = path(up) + ' ' + dn.slice().reverse().map((v, j) => 'L' + x(6 - j).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ') + ' Z';
+    const band = path(up) + ' ' + dn.slice().reverse().map((v, j) => 'L' + x(last - j).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ') + ' Z';
     const zone = (a, b, c) => '<rect x="' + pL + '" y="' + y(b) + '" width="' + (W - pL - pR) + '" height="' + (y(a) - y(b)) + '" fill="' + c + '"/>';
     let svg = zone(0, P.lowMax, '#E2F3E7') + zone(P.lowMax, P.highMin, '#FFF0D1') + zone(P.highMin, yMax, '#FBE1DF');
     [0, 15, 30, 45, 60].forEach((t) => {
@@ -67,14 +70,14 @@
     svg += '<path class="band" d="' + band + '"/><path class="edge" d="' + path(up) + '"/><path class="edge" d="' + path(dn) + '"/><path class="line" d="' + path(vals) + '"/>';
     vals.forEach((v, d) => {
       svg += '<circle class="pt' + (d === state.day ? ' sel' : '') + '" cx="' + x(d) + '" cy="' + y(v) + '" r="' + (d === state.day ? 6 : 4) + '"/>';
-      svg += '<text x="' + x(d) + '" y="' + (H - 12) + '" text-anchor="middle">' + P.days[d] + '</text>';
+      svg += '<text x="' + x(d) + '" y="' + (H - 12) + '" text-anchor="middle">' + (d === 0 ? 'Today' : P.chartLabels[d]) + '</text>';
     });
-    const w = P.spread(6);
-    svg += '<text class="pm" x="' + (x(6) + 6) + '" y="' + (y(up[6]) + 4) + '">+' + w + '</text>';
-    svg += '<text class="pm" x="' + (x(6) + 6) + '" y="' + (y(dn[6]) + 4) + '">−' + w + '</text>';
+    const w = P.spread(last);
+    svg += '<text class="pm" x="' + (x(last) + 6) + '" y="' + (y(up[last]) + 4) + '">+' + w + '</text>';
+    svg += '<text class="pm" x="' + (x(last) + 6) + '" y="' + (y(dn[last]) + 4) + '">−' + w + '</text>';
     const node = document.getElementById('forecast');
     node.innerHTML = svg;
-    node.setAttribute('aria-label', 'Forecast for ' + P.shifts[s].name + ' shift, ' + harmLabel + ', Monday ' + vals[0] + ' percent to Sunday ' + vals[6] + ' percent, range plus or minus ' + w + ' points by Sunday');
+    node.setAttribute('aria-label', 'Forecast for ' + P.shifts[s].name + ' shift, ' + harmLabel + ', today ' + vals[0] + ' percent to ' + P.daysLong[last] + ' ' + P.dates[last] + ' ' + vals[last] + ' percent, range plus or minus ' + w + ' points by then');
     document.getElementById('chart-title').textContent = 'Forecast · ' + P.shifts[s].name + ' shift · ' + harmLabel;
   }
 
@@ -84,7 +87,7 @@
     const box = document.getElementById('detail-boxes');
     box.innerHTML = '';
     P.harms.forEach((h) => {
-      const v = P.week[h.id][s][d];
+      const v = P.riskAt(h.id, s, d);
       const b = bandOf(v);
       box.appendChild(el('div', { class: 'dbox ' + b.cls }, [
         el('div', { class: 'top' }, [el('span', { text: h.label }), el('span', { style: 'font-size:12px', text: b.label })]),

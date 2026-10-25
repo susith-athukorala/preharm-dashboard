@@ -1,8 +1,8 @@
-# PreHaRM Dashboard: Prototype & Testing
+# PreHaRM Dashboard: prototype
 
 A clickable prototype of the PreHaRM dashboard for Nurse Unit Managers (NUMs). It shows the predicted risk of three inpatient harms (falls, medication errors and patient aggression) for each shift. It also shows what sits behind that risk, so a NUM can see where a rostering change might help.
 
-**Live prototype:** `https://susith.lk/preharm-dashboard/`
+**Live prototype:** `https://<your-username>.github.io/preharm-dashboard/`
 
 > **Prototype only.** All figures, names and wards are made-up sample data. Nothing here comes from real patients, staff or hospital systems, and the sign-in screen checks nothing.
 
@@ -34,8 +34,8 @@ A single staff sign-in button, then a choice of ward. In a real deployment this 
 - A "needs attention" strip listing any risk in the high band.
 
 **3. Week ahead**
-- A 7 × 3 grid (Monday to Sunday by shift) coloured by risk, so problem shifts stand out across the week.
-- A forecast chart for any selected shift. The shaded range widens for days further from today, because patient and staff details are more likely to change.
+- A grid of the next 7 days (starting today) by shift, coloured by risk, so problem shifts stand out across the coming week.
+- A forecast chart for any selected shift, running from today to the same weekday next week. The shaded range widens for days further from today, because patient and staff details are more likely to change.
 
 **Coming later:** a separate view for testing roster changes and seeing their effect on predicted risk.
 
@@ -57,10 +57,13 @@ There is nothing to install. Download or clone the repository and open `index.ht
 
 Everything you might want to adjust is in **`js/data.js`**:
 
-- ward names, the demo user's name, and the "last updated" time
+- ward names and the demo user's name
+- how many minutes before opening the page the "last updated" time shows (`updatedMinsAgo`)
 - band cut-offs (`lowMax`, `highMin`)
 - risk values for each harm, shift and day
 - staff counts and risk contributions for each shift
+
+Dates are worked out from the current date each time the page opens, so the prototype always looks current. Sample risk values are set per weekday, so weekends keep their higher figures whatever day you open it.
 
 Save the file and refresh the browser to see the changes.
 
