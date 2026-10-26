@@ -1,7 +1,7 @@
 (function () {
   const P = PREHARM;
   let harm = 'all';
-  const tabs = [{ id: 'all', label: 'All harms' }].concat(P.harms);
+  const tabs = [{ id: 'all', label: 'All categories' }].concat(P.harms);
 
   function render() {
     // Harm selector
@@ -68,7 +68,7 @@
     else att.appendChild(el('span', { class: 'muted', text: 'No harm risk is in the high band today.' }));
   }
 
-  fillCommon();
+  fillCommon(render);
   document.getElementById('today-label').textContent = 'Today, ' + P.todayLabel;
   render();
 })();

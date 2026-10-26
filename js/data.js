@@ -2,9 +2,9 @@
    Edit this file to change ward name, update time, band cut-offs and risk values. */
 const PREHARM = {
   ward: '[Ward name]',
-  userName: '[NUM name]',
+  userName: 'Julie Hartmann',
   // Wards a NUM can choose after signing in (demo values)
-  wards: ['[Ward A]', '[Ward B]', '[Ward C]'],
+  wards: ['General Surgery A', 'General Surgery B', 'General Surgery C'],
   // Dates, day names and the "last updated" time are worked out from the
   // viewer's current date and time when the page opens (see setDates below).
   updatedMinsAgo: 3, // "Last updated" = page opened minus this many minutes
@@ -12,13 +12,15 @@ const PREHARM = {
   refresh: '[interval TBC]',
 
   // Band cut-offs (%) - placeholders to be agreed with NUMs
-  lowMax: 15,   // below this = Low
-  highMin: 30,  // this and above = High
+  // Users can change these with the sliders at the bottom of each page;
+  // their choice is kept in their own browser only.
+  lowMax: 15,   // below this = Low (default)
+  highMin: 30,  // this and above = High (default)
 
   harms: [
     { id: 'falls', label: 'Falls' },
     { id: 'med', label: 'Medication errors' },
-    { id: 'aggr', label: 'Aggression' }
+    { id: 'aggr', label: 'Occupational violence' }
   ],
   shifts: [
     { name: 'Early', time: '07:00 – 15:30' },
@@ -128,7 +130,77 @@ function requireSession() {
   return s || { name: PREHARM.userName, ward: PREHARM.ward };              // storage blocked: carry on
 }
 
-function fillCommon() {
+/* Editable risk bands */
+PREHARM.defaultBands = { lowMax: PREHARM.lowMax, highMin: PREHARM.highMin };
+(function loadBands() {
+  try {
+    const b = JSON.parse(localStorage.getItem('preharmBands') || 'null');
+    if (b && b.lowMax >= 1 && b.highMin > b.lowMax && b.highMin <= 90) { PREHARM.lowMax = b.lowMax; PREHARM.highMin = b.highMin; }
+  } catch (e) {}
+})();
+function saveBands() {
+  try { localStorage.setItem('preharmBands', JSON.stringify({ lowMax: PREHARM.lowMax, highMin: PREHARM.highMin })); } catch (e) {}
+}
+
+function mountBandControls(n, onChange) {
+  n.innerHTML = '';
+  const panel = el('section', { class: 'bands', 'aria-label': 'Risk band thresholds' });
+  const head = el('div', { class: 'bands-head' }, [
+    el('h2', { text: 'Risk bands' }),
+    el('span', { class: 'muted', style: 'font-size:13px', text: 'Drag to set where Medium and High begin. Saved in this browser only.' })
+  ]);
+  const preview = el('div', { class: 'band-preview', 'aria-hidden': 'true' });
+  const keys = el('div', { class: 'band-keys' });
+
+  const mkSlider = (id, label) => {
+    const out = el('output', { for: id, class: 'band-val' });
+    const input = el('input', { type: 'range', id: id, min: '1', max: '90', step: '1' });
+    const wrap = el('div', { class: 'band-ctrl' }, [
+      el('label', { for: id }, [label, ' ', out]),
+      input
+    ]);
+    return { wrap, input, out };
+  };
+  const med = mkSlider('band-med', 'Medium starts at');
+  const high = mkSlider('band-high', 'High starts at');
+  const reset = el('button', { type: 'button', class: 'pill', text: 'Reset to ' + PREHARM.defaultBands.lowMax + '% / ' + PREHARM.defaultBands.highMin + '%' });
+
+  const paint = () => {
+    const lo = PREHARM.lowMax, hi = PREHARM.highMin, max = 90;
+    med.input.value = lo; high.input.value = hi;
+    med.out.textContent = lo + '%'; high.out.textContent = hi + '%';
+    preview.innerHTML = '';
+    preview.appendChild(el('span', { class: 'b-low', style: 'width:' + (lo / max * 100) + '%' }));
+    preview.appendChild(el('span', { class: 'b-med', style: 'width:' + ((hi - lo) / max * 100) + '%' }));
+    preview.appendChild(el('span', { class: 'b-high', style: 'width:' + ((max - hi) / max * 100) + '%' }));
+    keys.innerHTML = '';
+    [['b-low', 'Low: under ' + lo + '%'], ['b-med', 'Medium: ' + lo + '–' + (hi - 1) + '%'], ['b-high', 'High: ' + hi + '% and above']]
+      .forEach(([c, t]) => keys.appendChild(el('span', {}, [el('i', { class: c, 'aria-hidden': 'true' }), t])));
+  };
+  const apply = (changed) => {
+    let lo = Number(med.input.value), hi = Number(high.input.value);
+    if (lo >= hi) { if (changed === 'med') hi = Math.min(90, lo + 1); else lo = Math.max(1, hi - 1); }
+    if (lo >= hi) lo = hi - 1;
+    PREHARM.lowMax = lo; PREHARM.highMin = hi;
+    paint(); saveBands(); if (onChange) onChange();
+  };
+  med.input.addEventListener('input', () => apply('med'));
+  high.input.addEventListener('input', () => apply('high'));
+  reset.addEventListener('click', () => {
+    PREHARM.lowMax = PREHARM.defaultBands.lowMax; PREHARM.highMin = PREHARM.defaultBands.highMin;
+    paint(); saveBands(); if (onChange) onChange();
+  });
+
+  panel.appendChild(head);
+  panel.appendChild(el('div', { class: 'band-row' }, [med.wrap, high.wrap, reset]));
+  panel.appendChild(preview);
+  panel.appendChild(keys);
+  n.appendChild(panel);
+  n.appendChild(el('p', { class: 'note', text: 'Prototype with dummy data. Default cut-offs are placeholders to be agreed with NUMs.' }));
+  paint();
+}
+
+function fillCommon(onBandsChange) {
   const sess = requireSession();
   if (!sess) return;
   PREHARM.ward = sess.ward;
@@ -142,11 +214,5 @@ function fillCommon() {
   });
   document.querySelectorAll('[data-updated]').forEach((n) => (n.textContent = 'Last updated ' + PREHARM.lastUpdated));
   document.querySelectorAll('[data-refresh]').forEach((n) => (n.textContent = 'Refreshes every ' + PREHARM.refresh + ' · data to ' + PREHARM.dataTo));
-  document.querySelectorAll('[data-legend]').forEach((n) => {
-    n.innerHTML = '';
-    const lo = PREHARM.lowMax, hi = PREHARM.highMin;
-    [['b-low', 'Low: under ' + lo + '%'], ['b-med', 'Medium: ' + lo + '–' + (hi - 1) + '%'], ['b-high', 'High: ' + hi + '% and above']]
-      .forEach(([c, t]) => n.appendChild(el('span', {}, [el('i', { class: c, 'aria-hidden': 'true' }), t])));
-    n.appendChild(el('span', { text: 'Prototype with dummy data. Band cut-offs are placeholders to be agreed with NUMs.' }));
-  });
+  document.querySelectorAll('[data-legend]').forEach((n) => mountBandControls(n, onBandsChange));
 }

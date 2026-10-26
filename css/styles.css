@@ -101,3 +101,17 @@ svg .pt.sel{fill:var(--ink)}
 .wards label{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:15px}
 .wards input{width:18px;height:18px;margin:0}
 .fine{font-size:12px !important}
+
+/* Editable risk bands */
+.bands{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.bands-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.band-row{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end}
+.band-ctrl{display:flex;flex-direction:column;gap:6px;flex:1 1 220px;min-width:0}
+.band-ctrl label{font-size:14px;font-weight:600}
+.band-val{display:inline-block;min-width:3ch;font-variant-numeric:tabular-nums}
+.band-ctrl input[type=range]{width:100%;min-height:32px;accent-color:#1B2430}
+.band-preview{display:flex;height:14px;border-radius:7px;overflow:hidden}
+.band-preview span{display:block;height:100%;border:0}
+.band-keys{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted)}
+.band-keys span{display:inline-flex;align-items:center;gap:6px}
+.band-keys i{width:14px;height:14px;border-radius:3px;border:1px solid}

@@ -98,7 +98,7 @@
     document.getElementById('open-today').hidden = d !== 0;
   }
 
-  fillCommon();
+  fillCommon(render);
   document.getElementById('week-label').textContent = 'Week ahead, ' + P.weekLabel;
   render();
 })();

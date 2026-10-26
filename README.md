@@ -1,8 +1,8 @@
-# PreHaRM Dashboard: Prototype & Testing
+# PreHaRM Dashboard: prototype
 
-A clickable prototype of the PreHaRM dashboard for Nurse Unit Managers (NUMs). It shows the predicted risk of three inpatient harms (falls, medication errors and patient aggression) for each shift. It also shows what sits behind that risk, so a NUM can see where a rostering change might help.
+A clickable prototype of the PreHaRM dashboard for Nurse Unit Managers (NUMs). It shows the predicted risk of three inpatient harms (falls, medication errors and occupational violence) for each shift. It also shows what sits behind that risk, so a NUM can see where a rostering change might help.
 
-**Live prototype:** `https://susith.lk/preharm-dashboard/`
+**Live prototype:** `https://<your-username>.github.io/preharm-dashboard/`
 
 > **Prototype only.** All figures, names and wards are made-up sample data. Nothing here comes from real patients, staff or hospital systems, and the sign-in screen checks nothing.
 
@@ -28,10 +28,10 @@ The design is being developed with NUMs and will change as their feedback comes 
 A single staff sign-in button, then a choice of ward. In a real deployment this would use the hospital's existing staff single sign-on, not a separate PreHaRM password.
 
 **2. Today by shift**
-- Risk of falls, medication errors and aggression shown separately for the Early, Late and Night shifts, each coloured as low, medium or high.
+- Risk of falls, medication errors and occupational violence shown separately for the Early, Late and Night shifts, each coloured as low, medium or high.
 - Staff on each shift shown as counts (RN, EN, AIN/PCA, agency).
 - A breakdown of how much of the risk comes from staffing (skill mix, inexperience, agency use, short numbers) and how much from patient factors.
-- A "needs attention" strip listing any risk in the high band.
+- A "recommend attention today" strip listing any risk in the high band.
 
 **3. Week ahead**
 - A grid of the next 7 days (starting today) by shift, coloured by risk, so problem shifts stand out across the coming week.
@@ -47,7 +47,9 @@ A single staff sign-in button, then a choice of ward. In a real deployment this 
 | Medium | 15–29% |
 | High | 30% and above |
 
-These cut-offs are placeholders. Where the lines fall is a clinical decision that will be agreed with NUMs.
+These are the default cut-offs and are placeholders. Where the lines fall is a clinical decision that will be agreed with NUMs.
+
+Users can move the cut-offs with the **Risk bands** sliders at the bottom of each page. All colours, the attention list and the forecast chart update straight away. The setting is saved in that person's browser only, and **Reset** returns to the defaults.
 
 ## Run it on your own computer
 
@@ -59,7 +61,7 @@ Everything you might want to adjust is in **`js/data.js`**:
 
 - ward names and the demo user's name
 - how many minutes before opening the page the "last updated" time shows (`updatedMinsAgo`)
-- band cut-offs (`lowMax`, `highMin`)
+- default band cut-offs (`lowMax`, `highMin`)
 - risk values for each harm, shift and day
 - staff counts and risk contributions for each shift
 
@@ -87,7 +89,7 @@ Early-stage design prototype, for discussion within the project team. It is not 
 
 ## Author
 
-Dr. Susith Athukorala
+Susith Chandima Athukorala
 Rosemary Bryant AO Research Centre, Adelaide University
 
 © 2026. All rights reserved.
