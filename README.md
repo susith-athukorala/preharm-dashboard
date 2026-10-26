@@ -1,8 +1,8 @@
-# PreHaRM Dashboard: prototype
+# PreHaRM Dashboard: Prototype & Demo
 
 A clickable prototype of the PreHaRM dashboard for Nurse Unit Managers (NUMs). It shows the predicted risk of three inpatient harms (falls, medication errors and occupational violence) for each shift. It also shows what sits behind that risk, so a NUM can see where a rostering change might help.
 
-**Live prototype:** `https://<your-username>.github.io/preharm-dashboard/`
+**Live prototype:** `https://susith.lk/preharm-dashboard/`
 
 > **Prototype only.** All figures, names and wards are made-up sample data. Nothing here comes from real patients, staff or hospital systems, and the sign-in screen checks nothing.
 
@@ -89,7 +89,7 @@ Early-stage design prototype, for discussion within the project team. It is not 
 
 ## Author
 
-Susith Chandima Athukorala
+Dr. Susith Athukorala
 Rosemary Bryant AO Research Centre, Adelaide University
 
 © 2026. All rights reserved.
